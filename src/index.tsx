@@ -1,8 +1,32 @@
-import React, { Dispatch } from "react";
 import ReactDOM from "react-dom";
-import { useState } from "react";
-import Empty from "./Empty";
+import React, { Dispatch } from "react";
+import { useState, useEffect } from "react";
 import { HookFunctionType, SimpleObject } from "./types";
+
+interface EmptyPropsType {
+  onUpdate(v: SimpleObject): void;
+  hook: any;
+}
+
+const doProxy = origin =>
+  new Proxy(origin, {
+    get(target, property, receiver) {
+      if (typeof target[property] === "function") {
+        return new Proxy(target[property], {
+          apply(_target, thisArg, argumentsList) {
+            Reflect.apply(target[property], thisArg, argumentsList);
+          }
+        });
+      }
+      return target[property];
+    }
+  });
+
+const Empty: React.FC<EmptyPropsType> = ({ hook, onUpdate }) => {
+  const origin = hook();
+  onUpdate(doProxy({ ...origin }));
+  return <></>;
+};
 
 const createRubickHook = (hook: HookFunctionType) => {
   if (typeof window === "undefined") return;
@@ -24,7 +48,13 @@ const createRubickHook = (hook: HookFunctionType) => {
   );
   return () => {
     const [, setState] = useState();
-    notifySetStateSet.add(setState);
+    useEffect(() => {
+      notifySetStateSet.add(setState);
+      return () => {
+        notifySetStateSet.delete(setState);
+      };
+    }, []);
+
     return rst;
   };
 };
