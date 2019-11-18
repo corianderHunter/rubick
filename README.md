@@ -10,7 +10,6 @@ Custom Hook
 export const useCount = () => {
   const [count, setCount] = useState(1);
   const [mark, setMark] = useState(10000);
-  console.log("useEffect out", count);
   useEffect(() => {
     count > 4 && console.log("log count");
   }, [count]);
@@ -23,7 +22,7 @@ export const useCount = () => {
   return { count, setCount, ins, des, mark, setMark };
 };
 
-export const stableCount = createStableHook(useCount); //add type
+export const stableCount = createRubickHook(useCount); //add type
 ```
 
 use in components
