@@ -1,14 +1,23 @@
 {
-  "name": "rubick",
+  "name": "rubick-hook",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "make hook-created-state shared between components",
+  "main": "./dist",
+  "author": "corianderHunter",
+  "license": "MIT",
+  "repository": "https://github.com/corianderHunter/rubick",
+  "keywords": [
+    "state",
+    "hook",
+    "react",
+    "proxy",
+    "redux"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
+    "@types/node": "^12.12.14",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   }
