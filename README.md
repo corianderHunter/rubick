@@ -1,13 +1,18 @@
 # rubick
 
 make hook-created-state shared between components
+```js
+npm install rubick-hook
+```
 
 ## Demo
 
 Custom Hook
 
 ```tsx
-export const useCount = () => {
+import createRubickHook from 'rubick-hook'
+
+const useCount = () => {
   const [count, setCount] = useState(1);
   const [mark, setMark] = useState(10000);
   useEffect(() => {
