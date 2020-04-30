@@ -2,12 +2,6 @@
 
 make hook-created-state shared between components
 
-## Install
-
-```js
-npm install rubick-hook
-```
-
 ## Demo
 
 Custom Hook

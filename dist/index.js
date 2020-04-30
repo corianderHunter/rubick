@@ -11,30 +11,11 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var react_dom_1 = require("react-dom");
-var server_1 = require("react-dom/server");
 var react_1 = require("react");
 var react_2 = require("react");
-var ENV;
-(function (ENV) {
-    ENV[ENV["BROWSER"] = 0] = "BROWSER";
-    ENV[ENV["NODEJS"] = 1] = "NODEJS";
-    ENV[ENV["RN"] = 2] = "RN";
-})(ENV || (ENV = {}));
 var emptyHookCount = 0;
-var getENV = function () {
-    if (typeof window !== "undefined") {
-        if (window.navigator.product !== "ReactNative") {
-            return ENV.BROWSER;
-        }
-        else {
-            return ENV.RN;
-        }
-    }
-    else {
-        return ENV.NODEJS;
-    }
-};
+var rubicks = [];
+var rubicksProxy = null;
 var doProxy = function (origin) {
     return new Proxy(origin, {
         get: function (target, property, receiver) {
@@ -42,11 +23,11 @@ var doProxy = function (origin) {
                 return new Proxy(target[property], {
                     apply: function (_target, thisArg, argumentsList) {
                         Reflect.apply(target[property], thisArg, argumentsList);
-                    }
+                    },
                 });
             }
             return target[property];
-        }
+        },
     });
 };
 var Empty = function (_a) {
@@ -58,49 +39,17 @@ var Empty = function (_a) {
 var createRubickHook = function (hook) {
     var notifySetStateSet = new Set();
     var renderCount = 0;
-    var rst;
-    var env = getENV();
-    if (env === ENV.BROWSER) {
-        var dom = document.createElement("div");
-        react_dom_1.default.render(react_1.createElement(Empty, {
-            hook: hook,
-            onUpdate: function (v) {
-                rst = v;
-                if (notifySetStateSet.size) {
-                    notifySetStateSet.forEach(function (ck) { return ck(renderCount++); });
-                }
+    var rst = {};
+    (rubicksProxy || rubicks).push(react_1.createElement(Empty, {
+        hook: hook,
+        onUpdate: function (v) {
+            rst = v;
+            console.log("rst", rst);
+            if (notifySetStateSet.size) {
+                notifySetStateSet.forEach(function (ck) { return ck(renderCount++); });
             }
-        }), dom);
-    }
-    else if (env === ENV.NODEJS) {
-        //wait for testing
-        server_1.default.renderToString(react_1.createElement(Empty, {
-            hook: hook,
-            onUpdate: function (v) {
-                rst = v;
-                if (notifySetStateSet.size) {
-                    notifySetStateSet.forEach(function (ck) { return ck(renderCount++); });
-                }
-            }
-        }));
-    }
-    else if (env === ENV.RN) {
-        var AppRegistry = require("react-native").AppRegistry;
-        AppRegistry.registerComponent("ForEmptyHooK" + emptyHookCount, function () {
-            return react_1.createElement(Empty, {
-                hook: hook,
-                onUpdate: function (v) {
-                    rst = v;
-                    if (notifySetStateSet.size) {
-                        notifySetStateSet.forEach(function (ck) { return ck(renderCount++); });
-                    }
-                }
-            });
-        });
-    }
-    else {
-        throw new Error("can not detect current environment");
-    }
+        },
+    }));
     emptyHookCount++;
     return (function () {
         var _a = react_2.useState(), setState = _a[1];
@@ -112,5 +61,20 @@ var createRubickHook = function (hook) {
         }, []);
         return rst;
     });
+};
+exports.RubickStorage = function () {
+    //保证初始化时只执行一次，这里不使用useEffect 避免有自定义hook 无法挂载顶层组件
+    react_2.useState(function () {
+        rubicksProxy = new Proxy(rubicks, {
+            set: function (target, p, value) {
+                Reflect.set(target, p, value);
+                //这里因为数组更新机制，每次比预期中多更新一次
+                setStep(step + 1);
+                return true;
+            },
+        });
+    });
+    var _a = react_2.useState(0), step = _a[0], setStep = _a[1];
+    return react_1.createElement(react_1.Fragment, null, (rubicksProxy || rubicks).map(function (v, idx) { return react_1.cloneElement(v, { key: idx }); }));
 };
 exports.default = createRubickHook;
