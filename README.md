@@ -1,6 +1,9 @@
 # rubick
 
 make hook-created-state shared between components
+
+## Install
+
 ```js
 npm install rubick-hook
 ```
@@ -10,31 +13,32 @@ npm install rubick-hook
 Custom Hook
 
 ```tsx
-import createRubickHook from 'rubick-hook'
+interface DustHookType {
+  count: number;
+  setCount: Dispatch<number>;
+  ins(): void;
+  des(): void;
+}
 
-const useCount = () => {
-  const [count, setCount] = useState(1);
-  const [mark, setMark] = useState(10000);
-  useEffect(() => {
-    count > 4 && console.log("log count");
-  }, [count]);
+export const useDust = (): DustHookType => {
+  const [count, setCount] = useState<number>(0);
   const ins = () => {
     setCount(count + 1);
   };
   const des = () => {
     setCount(count - 1);
   };
-  return { count, setCount, ins, des, mark, setMark };
+  return { count, setCount, ins, des };
 };
 
-export const stableCount = createRubickHook(useCount); //add type
+export const cacheDust = createRubickHook(useDust);
 ```
 
 use in components
 
 ```tsx
 const TestPart1: React.FC = () => {
-  const { count, setCount, ins, mark, setMark } = stableCount() as any; //add type
+  const { count, setCount, ins, des } = cacheDust();
   return (
     <div
       style={{ margin: "20px 0" }}
@@ -43,18 +47,17 @@ const TestPart1: React.FC = () => {
       }}
     >
       test-part1:{count}
-      mark-- :{mark}
     </div>
   );
 };
 
 const TestPart2: React.FC = () => {
-  let { count, setCount, ins } = stableCount() as any; //add type
+  const { count, setCount, ins, des } = cacheDust();
   return (
     <div
       style={{ margin: "20px 0" }}
       onClick={() => {
-        setCount(count + 1);
+        ins();
       }}
     >
       test-part2:{count}

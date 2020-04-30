@@ -1,6 +1,6 @@
 {
   "name": "rubick-hook",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "make hook-created-state shared between components",
   "main": "./dist",
   "author": "corianderHunter",
