@@ -4,6 +4,15 @@ make hook-created-state shared between components
 
 ## Demo
 
+Use in Root Node
+
+```tsx
+<App>
+  <RubickStorage></RubickStorage>
+  {others...}
+</App>
+```
+
 Custom Hook
 
 ```tsx

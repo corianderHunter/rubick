@@ -38,7 +38,6 @@ const createRubickHook = <T>(hook: HookFunctionType<T>): (() => T) => {
       hook,
       onUpdate(v) {
         rst = v;
-        console.log("rst", rst);
         if (notifySetStateSet.size) {
           notifySetStateSet.forEach((ck) => ck(renderCount++));
         }
